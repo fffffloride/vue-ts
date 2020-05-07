@@ -32,7 +32,7 @@
             :loading="isLogin"
             @click.native.prevent="handleSubmit"
             type="primary"
-            style="width:100%;"
+            style="width: 100%;"
           >登录</el-button>
         </el-form-item>
 
@@ -49,12 +49,16 @@
 <script lang="ts">
 // 引入装饰器
 import { Component, Vue, Provide } from "vue-property-decorator";
+import { State, Action, Mutation, Getter } from 'vuex-class'
 import LoginHeader from "./LoginHeader.vue";
 
 @Component({
   components: { LoginHeader }
 })
 export default class Login extends Vue {
+  // 存储用户信息
+  @Action("setUser") setUser: any;
+
   @Provide() isLogin: boolean = false;
   @Provide() ruleForm: {
     username: String;
@@ -67,14 +71,25 @@ export default class Login extends Vue {
   };
 
   @Provide() rules = {
-    username: [{ required: true, message: "请输入密码", trigger: "blur" }],
+    username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
     pwd: [{ required: true, message: "请输入密码", trigger: "blur" }]
   };
 
   handleSubmit(): void {
     (this.$refs.ruleForm as any).validate((valid: boolean) => {
       if (valid) {
-        console.log(1);
+        this.isLogin = true;
+        (this as any).$axios.post("/api/users/login", this.ruleForm).then((res:any) => {
+          console.log(res.data);
+          this.isLogin = false;
+
+          localStorage.setItem("tsToken", res.data.token);
+          this.setUser(res.data.tsToken);
+          // 登录成功 跳转
+          this.$router.push("/");
+        }).catch(() => {
+          this.isLogin = false;
+        })
       }
     });
   }

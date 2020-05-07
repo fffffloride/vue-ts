@@ -4,6 +4,21 @@
   </div>
 </template>
 
+<script lang="ts">
+// 引入装饰器
+import { Component, Vue } from 'vue-property-decorator'
+import { State, Action, Mutation, Getter } from 'vuex-class'
+@Component({
+  components: {}
+})
+export default class App extends Vue {
+  @Action("setUser") setUser: any;
+  created() {
+    this.setUser(localStorage.tsToken);
+  }
+}
+</script>
+
 <style lang="scss">
 #app {
   width: 100%;
